@@ -1,0 +1,37 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "2116297",
+      "name": "商城",
+      "font_class": "store_icon",
+      "unicode": "e663",
+      "unicode_decimal": 58979
+    },
+    {
+      "icon_id": "7210575",
+      "name": "app",
+      "font_class": "app",
+      "unicode": "e6d7",
+      "unicode_decimal": 59095
+    },
+    {
+      "icon_id": "10043599",
+      "name": "会员",
+      "font_class": "xinbaniconshangchuan-",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
+      "icon_id": "18000227",
+      "name": "信息",
+      "font_class": "4-90",
+      "unicode": "e695",
+      "unicode_decimal": 59029
+    }
+  ]
+}

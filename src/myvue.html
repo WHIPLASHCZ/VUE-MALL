@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="app">
+        {{mess}}
+        <br>
+        <input type="text" v-model="mess">
+    </div>
+    <script>
+        class Vue {
+            constructor(options) {
+                this.$options = options;
+                this.$data = options.data;
+                this.$el = options.el;
+                //将data添加到响应水系统
+                new Observer(this.$data);
+
+                //代理data中的属性
+                Object.keys(this.$data).forEach(key => {
+                    this._proxy(key);
+                })
+
+                //处理dom
+                new Compiler(this.$el, this);
+            }
+            //将data内的属性代理到VUE类里 这样就可以直接通过vue实例去访问data里的属性。
+            _proxy(key) {
+                Object.defineProperty(this, key, {
+                    configurable: true,
+                    enumerable: true,
+                    set(newval) {
+                        this.$data[key] = newval;
+                    },
+                    get() {
+                        return this.$data[key]      //当我们通过vue去调用data里的属性 会自动调用这个get 返回的是data里的对应属性。
+                    }
+                })
+            }
+
+        }
+
+        //模型 处理data属性
+        class Observer {
+            constructor(data) {
+                this.data = data;
+
+                //取出所有data所有的键和值
+                Object.keys(data).forEach(key => {
+                    //让data的所有属性变成响应式的
+                    this.defineReactive(this.data, key, data[key])
+                })
+            }
+            defineReactive(data, key, val) {
+                //一个data属性对应一个dep对象
+                const dep = new Dep();
+                Object.defineProperty(data, key, {
+                    enumerable: true,
+                    configurable: true,
+                    //当watcher的update方法被调用 会访问data属性 就回自动调用该属性的get方法。
+                    get() {
+                        //如果有新创建的watcher对象 也就是data属性被某个dom元素使用了 就把这个使用者添加到dep的使用者名单中。
+                        if (Dep.target) {
+                            // 每次使用/访问了某个data属性 就把这个订阅者watcher添加进发布者的记录名单
+                            //以便于当数据做出修改时，更新所有的属性使用/访问者者。
+                            dep.addSub(Dep.target);
+                        }
+                        return val
+                    },
+                    set(newval) {
+                        if (newval == val) return;
+                        //更新数据 修改掉data属性的值 然后调用发布者的通知方法 通知所有使用者
+                        //然后所有使用者更新数据。
+                        val = newval;
+                        dep.notify();
+                    }
+                })
+            }
+
+        };
+        //视图
+        class Compiler {
+            constructor(el, vue) {
+                this.el = document.querySelector(el);   //获取到vue实例的el元素
+                this.vue = vue;
+                this.reg = /\{\{(.+)\}\}/;
+                this.frag = this._createFragment();     //
+                this.el.appendChild(this.frag);
+                //用于匹配el中的{{}}胡子语法
+
+                console.log(this.reg);
+            }
+            _createFragment() {
+                //用于保存被取出操作移除掉的dom元素
+                const frag = document.createDocumentFragment();
+                let child;
+                while (child = this.el.firstChild) {
+                    //取出el中所有子元素 去解析里面有没有{{}}语法
+                    this._compile(child);
+                    //取出后子元素会被移出 我们再将其放回去。
+                    frag.appendChild(child);
+                }
+                return frag;
+            }
+            _compile(node) {
+                if (node.nodeType === 1) { //nodetype为1表示其为标签结点
+                    const attrs = node.attributes
+                    //如果el中某元素有v-model属性
+                    if (attrs.hasOwnProperty('v-model')) {
+                        const name = attrs['v-model'].nodeValue;
+                        node.addEventListener('input', e => {
+                            this.vue[name] = e.target.value;
+                        });
+                        node.value = this.vue[name];
+                    }
+                }
+                if (node.nodeType === 3) {//nodetype为3表示其为文本结点
+                    //如果文本中有胡子语法{{}}
+                    console.log(this.reg);
+                    if (this.reg.test(node.nodeValue)) {
+                        //取出胡子语法中的data属性名
+                        const name = RegExp.$1.trim();
+                        console.log(name);
+                        //根据这个被使用的data属性名创建一个新的使用者。
+                        new Watcher(node, name, this.vue);
+                    }
+                }
+            }
+        }
+
+        //发布者
+        class Dep {
+            constructor() {
+                this.subs = []; //订阅者名单
+            }
+            //添加使用者/订阅者
+            addSub(sub) {
+                this.subs.push(sub);
+            }
+            //通知使用者数据被修改了
+            notify() {
+                this.subs.forEach(sub => {
+                    //所有使用者更新数据
+                    sub.update();
+                })
+            }
+        }
+
+        //订阅者
+        class Watcher {
+            constructor(node, name, vue) {
+                this.node = node;   //使用了data属性的结点
+                this.name = name;   //使用的data属性名称
+                this.vue = vue;     //vue实例
+                Dep.target = this;  //一旦创建了一个watcher 就让dep类内部的target等于这个新创建的watcher对象
+                this.update();      //如果有data属性被使用 立刻把dom中的使用者变成对应的data属性值
+                Dep.target = null;
+            }
+            update() {
+                //data属性被修改后 把新的属性值赋值给使用者的页面元素  data内的属性被代理到了vue里 所以可以直接通过vue访问。
+                this.node.nodeValue = this.vue[this.name];  //获取data属性时 该属性的get方法会自动调用
+            }
+        }
+
+        const app = new Vue({
+            el: '.app',
+            data: {
+                mess: '奥利给！！'
+            }
+        })
+    </script>
+
+</body>
+
+</html>

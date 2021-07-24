@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app">
+        {{mes}}{{mes}}{{mes}}
+        <br>
+        <input type="text" @input="inp" :value="mes">
+    </div>
+    <div class="obj">
+
+    </div>
+    <input type="text" class="ip">
+    <script src="../node_modules/vue/dist/vue.min.js"></script>
+    <script>
+        const obj = { name: '建国', age: 123 };
+        let obox = document.querySelector('.obj');
+        let ip = document.querySelector(".ip");
+        console.log(ip);
+        ip.oninput = () => {
+            obj.name = ip.value;
+        }
+        Object.keys(obj).forEach(key => {
+            console.log(ip.value);
+            let val = obj[key];
+            Object.defineProperty(obj, key, {
+                set(newval) {
+                    console.log('newval', newval);
+                    val = newval;
+                    obox.innerHTML = val;
+                    dep.notify();
+                },
+                get() {
+                    console.log('获取');
+                    const watch = new Watcher('div');
+                    dep.addSub(watch);
+                    console.log(dep.subs);
+                    return val
+                }
+            })
+        })
+
+        // 发布者订阅者
+        class Dep {
+            constructor() {
+                //用来记录所有使用属性的订阅者
+                this.subs = []
+            }
+            addSub(watch) {
+                this.subs.push(watch)
+            }
+            notify() {
+                this.subs.forEach(item => {
+                    item.update();
+                })
+            }
+        }
+
+        class Watcher {
+            constructor(name) {
+                this.name = name
+            }
+            update() {
+                console.log('nameUpdate', this.name);
+            }
+        }
+        const dep = new Dep();
+        const app = new Vue({
+            el: '#app',
+            data: {
+                mes: 'alg123'
+            },
+            methods: {
+                inp(e) {
+                    this.mes = e.target.value;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

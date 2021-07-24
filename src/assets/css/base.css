@@ -1,0 +1,72 @@
+@import url('./normalize.css');
+* { touch-action: pan-y; }
+body{
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    overflow-x: hidden; 
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    font-family: "Helvetica Neue" , Helvetica, "PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif ;
+}
+html{
+    overflow-x: hidden; 
+}
+
+@font-face {
+    font-family: 'iconfont';
+    src: url('../../assets/icon-font/font_osr59c4z07/iconfont.ttf') format('truetype');
+  }
+
+  .iconfont {
+    font-family: "iconfont" !important;
+    font-size: 16px;
+    font-style: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+.pl17 {
+    padding: 0 17px;
+  }
+
+/* 相当于在CSS中定义变量 */
+:root{
+    --color-text:#666;
+    --color-high-text:#ff5777;
+    --color-tint:#ff8198;
+    --color-background:#fff;
+    --font-size:14px;
+    --line-height:1.5;
+}
+
+*,
+*::before,
+*::after{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a{
+    text-decoration: none;
+}
+ul,ol,dl{
+    list-style: none;
+}
+
+.clear-fix::after{
+    clear: both;
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    visibility: hidden;
+}
+.clear-fix{
+    zoom: 1;
+}
+
+.left{
+    float: left;
+}

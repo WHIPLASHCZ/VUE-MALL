@@ -1,0 +1,20 @@
+<<<<<<< HEAD
+root = true
+
+[*]
+chareset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+=======
+root = true
+
+[*]
+chareset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+>>>>>>> 776b30e292440405959105feffe7b3a4ddc50034
+trim_trailing_whitespace = true
